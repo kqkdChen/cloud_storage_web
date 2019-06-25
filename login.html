@@ -45,7 +45,7 @@
                                        autocomplete="off" lay-verType="tips" lay-verify="required" required/>
                             </div>
                             <div class="layui-col-xs5" style="padding-left: 6px;">
-                                <img class="login-captcha" src="http://localhost/user/verifyCode">
+                                <img class="login-captcha" src="http://192.168.2.54/u/verifyCode">
                             </div>
                         </div>
                     </div>
@@ -164,7 +164,7 @@
                 return;
             }
             var mail = $('#email').val();
-            admin.req('user/mailCode', {'mail': mail}, function (msg) {
+            admin.req('u/mailCode', {'mail': mail}, function (msg) {
                 if (msg == true) {
                     self.attr('class', 'layui-btn layui-btn-disabled');
                     self.css('background', '#fff');
@@ -199,7 +199,7 @@
         form.on('submit(register-submit)', function (data) {
             layer.load(2);
             $.ajax({
-                url: 'http://localhost/user/register',
+                url: 'http://192.168.2.54/u/register',
                 type: 'post',
                 data: data.field,
                 dataType: 'json',
@@ -226,10 +226,10 @@
             var field = data.field;
             layer.load(2);
             /* 获取随机字符串 */
-            admin.req('user/randomStr', {}, function (msg) {
+            admin.req('u/randomStr', {}, function (msg) {
                 field.userPassword = $.md5($.md5(field.userPassword) + $.md5(msg.randomStr));
                 $.ajax({
-                    url: 'http://localhost/user/login',
+                    url: 'http://192.168.2.54/u/login',
                     data: field,
                     type: 'POST',
                     dataType: 'JSON',
@@ -264,7 +264,7 @@
 
         // 图形验证码
         $('.login-captcha').click(function () {
-            this.src = "user/verifyCode" + '?t=' + (new Date).getTime();
+            this.src = "u/verifyCode" + '?t=' + (new Date).getTime();
         });
     });
 

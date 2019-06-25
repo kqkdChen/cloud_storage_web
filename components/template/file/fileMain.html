@@ -83,7 +83,7 @@
                 dir = $('#tvFP').text();
             }
             layer.load(2);
-            admin.req('file/list', {}, function (res) {
+            admin.req('f/list', {}, function (res) {
                 layer.closeAll('loading');
                 if (res.code == 200) {
                     laytpl(fileTpl.innerHTML).render(res.files.records, function (html) {
