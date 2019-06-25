@@ -1,4 +1,7 @@
-<link rel="stylesheet" href="components/template/file/fileCommon.css"/>
+<link rel="stylesheet" href="static/css/fileCommon.css"/>
+<link rel="stylesheet" type="text/css" href="static/css/Huploadify.css"/>
+<script type="text/javascript" src="static/js/jquery.js"></script>
+<script type="text/javascript" src="static/js/jquery.Huploadify.js"></script>
 
 <!-- 正文开始 -->
 <div class="layui-fluid">
@@ -10,7 +13,7 @@
                 </button>
                 <button id="btnRefresh" class="layui-btn layui-btn-sm layui-btn-primary icon-btn"><i class="layui-icon">&#xe669;</i>刷新
                 </button>
-                <button id="btnUpload" class="layui-btn layui-btn-sm layui-btn-normal icon-btn"><i class="layui-icon">&#xe681;</i>上传文件
+                <button id="upload" class="layui-btn layui-btn-sm layui-btn-normal icon-btn"><i class="layui-icon">&#xe681;</i>上传文件
                 </button>
                 <button id="btnDilaog" class="layui-btn layui-btn-sm layui-btn-primary icon-btn"><i class="layui-icon">&#xe634;</i>弹窗选择
                 </button>
@@ -46,7 +49,7 @@
             {{# if(item.smUrl){ }}
             <img src="{{item.smUrl}}"/>
             {{# }else{ }}
-            <img src="components/template/file/fti/{{item.type}}.png"/>
+            <img src="static/images/{{item.type}}.png"/>
             {{# } }}
         </div>
         <div class="file-list-name">{{item.fileName}}</div>
@@ -60,11 +63,108 @@
     {{# } }}
 </script>
 
+<script type="text/javascript">
+    $(function(){
+        var up = $('#upload').Huploadify({
+            auto:false,
+            fileTypeExts:'*.txt;*.jpg;*.png;*.avi;*.rar;*.exe;*.mp3;*.mp4;*.zip;*.doc;*.docx;*.ppt;*.pptx;*.xls;*.xlsx;*.pdf;*.md',
+            multi:true,
+            breakPoints:true,
+            saveInfoLocal:false,
+            showUploadedPercent:true,//是否实时显示上传的百分比，如20%
+            showUploadedSize:true,
+            fileSizeLimit: 2048 * 1024,
+            fileSplitSize: 5 * 1024 * 1024,
+            removeTimeout:9999999,
+            uploader:'http://192.168.2.54/f/upload',
+            getUploadedSize:function(file){
+                var
+                    data = {
+                        fileSize: file.size,
+                        lastModifiedDate: file.lastModifiedDate.getTime()
+                    };
+                var url = 'http://192.168.2.54/f/getUploadSize';
+                var uploadedSize = 0;
+                $.ajax({
+                    url : url,
+                    data : data,
+                    async : false,
+                    type : 'get',
+                    dataType: 'json',
+                    success : function(returnData){
+                        console.log(returnData);
+                        uploadedSize = returnData;
+                    }
+                });
+                return uploadedSize;
+            },
+            saveUploadedSize:function(file, value){
+            },
+            onUploadStart:function(file){
+                console.log(file.name+'开始上传');
+            },
+            onInit:function(obj){
+            },
+            onUploadSuccess:function(file){
+            },
+            onUploadComplete:function(file){
+            },
+            onCancel:function(file){
+            },
+            onClearQueue:function(queueItemCount){
+                console.log('有'+queueItemCount+'个文件被删除了');
+            },
+            onDestroy:function(){
+            },
+            onSelect:function(file){
+                console.log(file.name+'加入上传队列');
+            },
+            onQueueComplete:function(queueData){
+                console.log('队列中的文件全部上传完成',queueData);
+            }
+        });
 
-<script type="text/javascript" src="../../assets/libs/jquery/clipboard.min.js"></script>
-<script src="components/template/file/jquery.js"></script>
-<script src="components/template/file/FileSaver.js"></script>
-<script src="components/template/file/fetch.min.js"></script>
+        $('#btn1').click(function(){
+            up.stop();
+        });
+        $('#btn2').click(function(){
+            up.upload('*');
+        });
+        $('#btn3').click(function(){
+            up.cancel('*');
+        });
+        $('#btn4').click(function(){
+            //up.disable();
+            up.Huploadify('disable');
+        });
+        $('#btn5').click(function(){
+            up.ennable();
+        });
+        $('#btn6').click(function(){
+            up.destroy();
+        });
+
+    });
+
+    // function calSHA1(file) {
+    //     //使用FileReader对象对文件的二进制进行sha-1的hash计算
+    //     return new Promise(function (resolve, reject) {
+    //         var reader = new FileReader();
+    //         //当整个文件加载完成后，开始进行hash值的计算操作
+    //         reader.readAsBinaryString(file);
+    //         reader.onload = function (e) {
+    //             var binary = e.target.result;
+    //             resolve(CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(binary)).toString());
+    //             // sha1_hash = CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(binary)).toString();
+    //         };
+    //     });
+    // }
+
+</script>
+<script type="text/javascript" src="static/js/clipboard.min.js"></script>
+<!--<script src="static/js/jquery.js"></script>-->
+<script src="static/js/FileSaver.js"></script>
+<script src="static/js/fetch.min.js"></script>
 <script>
     layui.use(['jquery', 'layer', 'element', 'upload', 'laytpl', 'util', 'admin', 'config'], function () {
         var $ = layui.jquery;
@@ -97,28 +197,30 @@
         renderList();
 
         // 上传文件事件
-        upload.render({
-            elem: '#btnUpload',
-            url: 'components/template/file/ok.json',
-            choose: function (obj) {
-                layer.load(2);
-            },
-            done: function (res, index, upload) {
-                layer.closeAll('loading');
-                if (res.code != 200) {
-                    layer.msg(res.msg, {icon: 2});
-                } else {
-                    layer.msg(res.msg, {icon: 1});
-                    $('#tvFP').text(util.toDateString(new Date(), '/yyyy/MM/dd'));
-                    renderList();
-                }
-            },
-            error: function () {
-                layer.closeAll('loading');
-                layer.msg('上传失败', {icon: 2});
-            },
-            accept: 'file'
-        });
+        // upload.render({
+        //     elem: '#btnUpload',
+        //     url: 'components/template/file/ok.json',
+        //     choose: function (obj) {
+        //         layer.load(2);
+        //     },
+        //     done: function (res, index, upload) {
+        //         layer.closeAll('loading');
+        //         if (res.code != 200) {
+        //             layer.msg(res.msg, {icon: 2});
+        //         } else {
+        //             layer.msg(res.msg, {icon: 1});
+        //             $('#tvFP').text(util.toDateString(new Date(), '/yyyy/MM/dd'));
+        //             renderList();
+        //         }
+        //     },
+        //     error: function () {
+        //         layer.closeAll('loading');
+        //         layer.msg('上传失败', {icon: 2});
+        //     },
+        //     accept: 'file'
+        // });
+
+
 
         // 刷新
         $('#btnRefresh').click(function () {

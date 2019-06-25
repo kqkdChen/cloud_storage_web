@@ -1,14 +1,14 @@
 layui.define(function (exports) {
     var config = {
         version: '312',  // 版本号，模块js和页面加版本号防止缓存
-        base_server: 'http://192.168.2.54/', // 接口地址，实际项目请换成http形式的地址
+        base_server: 'http://localhost/', // 接口地址，实际项目请换成http形式的地址
         tableName: 'cloud-web',  // 存储表名
         pageTabs: true,   // 是否开启多标签
         openTabCtxMenu: true,   // 是否开启Tab右键菜单
         maxTabNum: 20,  // 最多打开多少个tab
         viewPath: 'components', // 视图位置
         viewSuffix: '.html',  // 视图后缀
-        defaultTheme: 'theme-admin',  // 默认主题
+        defaultTheme: 'theme-white',  // 默认主题
         reqPutToPost: true,  // req请求put方法变成post
         cacheTab: true,  // 是否记忆Tab
         // 获取缓存的token

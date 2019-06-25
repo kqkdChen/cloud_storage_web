@@ -3,11 +3,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Huploadify demo</title>
-    <link rel="stylesheet" type="text/css" href="Huploadify.css"/>
-    <script type="text/javascript" src="jquery.js"></script>
-    <script type="text/javascript" src="jquery.Huploadify.js"></script>
-    <script type="text/javascript" src="core.js" ></script>
-    <script type="text/javascript" src="sha1.js" ></script>
+    <link rel="stylesheet" type="text/css" href="static/css/Huploadify.css"/>
+    <script type="text/javascript" src="static/js/jquery.js"></script>
+    <script type="text/javascript" src="static/js/jquery.Huploadify.js"></script>
     <style type="text/css">
     </style>
     <script type="text/javascript">
@@ -23,14 +21,14 @@
                 fileSizeLimit: 2048 * 1024,
                 fileSplitSize: 5 * 1024 * 1024,
                 removeTimeout:9999999,
-                uploader:'http://192.168.2.54/f/upload',
+                uploader:'http://localhost/f/upload',
                 getUploadedSize:function(file){
                     var
                         data = {
                             fileSize: file.size,
                             lastModifiedDate: file.lastModifiedDate.getTime()
                         };
-                    var url = 'http://192.168.2.54/f/getUploadSize';
+                    var url = 'http://localhost/f/getUploadSize';
                     var uploadedSize = 0;
                     $.ajax({
                         url : url,
@@ -93,19 +91,19 @@
 
         });
 
-        function calSHA1(file) {
-            //使用FileReader对象对文件的二进制进行sha-1的hash计算
-            return new Promise(function (resolve, reject) {
-                var reader = new FileReader();
-                //当整个文件加载完成后，开始进行hash值的计算操作
-                reader.readAsBinaryString(file);
-                reader.onload = function (e) {
-                    var binary = e.target.result;
-                    resolve(CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(binary)).toString());
-                    // sha1_hash = CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(binary)).toString();
-                };
-            });
-        }
+        // function calSHA1(file) {
+        //     //使用FileReader对象对文件的二进制进行sha-1的hash计算
+        //     return new Promise(function (resolve, reject) {
+        //         var reader = new FileReader();
+        //         //当整个文件加载完成后，开始进行hash值的计算操作
+        //         reader.readAsBinaryString(file);
+        //         reader.onload = function (e) {
+        //             var binary = e.target.result;
+        //             resolve(CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(binary)).toString());
+        //             // sha1_hash = CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(binary)).toString();
+        //         };
+        //     });
+        // }
 
     </script>
 </head>
