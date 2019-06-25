@@ -23,14 +23,14 @@
                 fileSizeLimit: 2048 * 1024,
                 fileSplitSize: 5 * 1024 * 1024,
                 removeTimeout:9999999,
-                uploader:'http://192.168.2.54/file/upload',
+                uploader:'http://192.168.2.54/f/upload',
                 getUploadedSize:function(file){
                     var
                         data = {
                             fileSize: file.size,
                             lastModifiedDate: file.lastModifiedDate.getTime()
                         };
-                    var url = 'http://192.168.2.54/file/getUploadSize';
+                    var url = 'http://192.168.2.54/f/getUploadSize';
                     var uploadedSize = 0;
                     $.ajax({
                         url : url,

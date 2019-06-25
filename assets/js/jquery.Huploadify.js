@@ -2,34 +2,34 @@
 	$.fn.Huploadify = function(opts){
 		var itemTemp = '<div id="${fileID}" class="uploadify-queue-item"><div class="uploadify-progress"><div class="uploadify-progress-bar"></div></div><span class="up_filename">${fileName}</span><a href="javascript:void(0);" class="uploadbtn">上传</a><a href="javascript:void(0);" class="delfilebtn">删除</a></div>';
 		var defaults = {
-			fileTypeExts:'*.*',//允许上传的文件类型，格式'*.jpg;*.doc'
-			uploader:'',//文件提交的地址
-			auto:false,//是否开启自动上传
-			method:'post',//发送请求的方式，get或post
-			multi:true,//是否允许选择多个文件
-			formData:null,//发送给服务端的参数，格式：{key1:value1,key2:value2}
-			fileObjName:'file',//在后端接受文件的参数名称，如PHP中的$_FILES['file']
-			fileSizeLimit:2048,//允许上传的文件大小，单位KB
-			showUploadedPercent:true,//是否实时显示上传的百分比，如20%
-			showUploadedSize:false,//是否实时显示已上传的文件大小，如1M/2M
-			buttonText:'选择文件',//上传按钮上的文字
+			fileTypeExts: '*.*',//允许上传的文件类型，格式'*.jpg;*.doc'
+			uploader: '',//文件提交的地址
+			auto: false,//是否开启自动上传
+			method: 'post',//发送请求的方式，get或post
+			multi: true,//是否允许选择多个文件
+			formData: null,//发送给服务端的参数，格式：{key1:value1,key2:value2}
+			fileObjName: 'file',//在后端接受文件的参数名称，如PHP中的$_FILES['file']
+			fileSizeLimit: 2048,//允许上传的文件大小，单位KB
+			showUploadedPercent: true,//是否实时显示上传的百分比，如20%
+			showUploadedSize: false,//是否实时显示已上传的文件大小，如1M/2M
+			buttonText: '选择文件',//上传按钮上的文字
 			removeTimeout: 1000,//上传完成后进度条的消失时间，单位毫秒
-			itemTemplate:itemTemp,//上传队列显示的模板
-			breakPoints:false,//是否开启断点续传
-			fileSplitSize:1024*1024,//断点续传的文件块大小，单位Byte，默认1M
-			getUploadedSize:null,//类型：function，自定义获取已上传文件的大小函数，用于开启断点续传模式，可传入一个参数file，即当前上传的文件对象，需返回number类型
-			saveUploadedSize:null,//类型：function，自定义保存已上传文件的大小函数，用于开启断点续传模式，可传入两个参数：file：当前上传的文件对象，value：已上传文件的大小，单位Byte
-			onUploadStart:null,//上传开始时的动作
-			onUploadSuccess:null,//上传成功的动作
-			onUploadComplete:null,//上传完成的动作
-			onUploadError:null, //上传失败的动作
-			onInit:null,//初始化时的动作
-			onCancel:null,//删除掉某个文件后的回调函数，可传入参数file
-			onClearQueue:null,//清空上传队列后的回调函数，在调用cancel并传入参数*时触发
-			onDestroy:null,//在调用destroy方法时触发
-			onSelect:null,//选择文件后的回调函数，可传入参数file
-			onQueueComplete:null//队列中的所有文件上传完成后触发
-		}
+			itemTemplate: itemTemp,//上传队列显示的模板
+			breakPoints: false,//是否开启断点续传
+			fileSplitSize: 1024 * 1024,//断点续传的文件块大小，单位Byte，默认1M
+			getUploadedSize: null,//类型：function，自定义获取已上传文件的大小函数，用于开启断点续传模式，可传入一个参数file，即当前上传的文件对象，需返回number类型
+			saveUploadedSize: null,//类型：function，自定义保存已上传文件的大小函数，用于开启断点续传模式，可传入两个参数：file：当前上传的文件对象，value：已上传文件的大小，单位Byte
+			onUploadStart: null,//上传开始时的动作
+			onUploadSuccess: null,//上传成功的动作
+			onUploadComplete: null,//上传完成的动作
+			onUploadError: null, //上传失败的动作
+			onInit: null,//初始化时的动作
+			onCancel: null,//删除掉某个文件后的回调函数，可传入参数file
+			onClearQueue: null,//清空上传队列后的回调函数，在调用cancel并传入参数*时触发
+			onDestroy: null,//在调用destroy方法时触发
+			onSelect: null,//选择文件后的回调函数，可传入参数file
+			onQueueComplete: null//队列中的所有文件上传完成后触发
+		};
 			
 		var option = $.extend(defaults,opts);
 

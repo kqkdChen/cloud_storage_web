@@ -3,7 +3,7 @@ layui.define(function (exports) {
         version: '312',  // 版本号，模块js和页面加版本号防止缓存
         base_server: 'http://192.168.2.54/', // 接口地址，实际项目请换成http形式的地址
         tableName: 'cloud-web',  // 存储表名
-        pageTabs: false,   // 是否开启多标签
+        pageTabs: true,   // 是否开启多标签
         openTabCtxMenu: true,   // 是否开启Tab右键菜单
         maxTabNum: 20,  // 最多打开多少个tab
         viewPath: 'components', // 视图位置
