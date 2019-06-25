@@ -11,55 +11,25 @@
     <style type="text/css">
     </style>
     <script type="text/javascript">
-        var fileNameWithSHA1 = [];
         $(function(){
             var up = $('#upload').Huploadify({
                 auto:false,
                 fileTypeExts:'*.txt;*.jpg;*.png;*.avi;*.rar;*.exe;*.mp3;*.mp4;*.zip;*.doc;*.docx;*.ppt;*.pptx;*.xls;*.xlsx;*.pdf;*.md',
                 multi:true,
                 breakPoints:true,
-                saveInfoLocal:true,
+                saveInfoLocal:false,
                 showUploadedPercent:true,//是否实时显示上传的百分比，如20%
                 showUploadedSize:true,
                 fileSizeLimit: 2048 * 1024,
                 fileSplitSize: 5 * 1024 * 1024,
                 removeTimeout:9999999,
                 uploader:'http://localhost/file/upload',
-                onSelect: function (files) {
-                    console.log(files);
-                    for (var f in files) {
-                        var file = {};
-                        file.fileName = files[f].name;
-                        calSHA1(files[f]).then(function (result) {
-                            file.sha1 = result;
-                        });
-                        fileNameWithSHA1.push(file);
-                    }
-
-                    console.log(fileNameWithSHA1)
-                },
-                onUploadStart:function(){
-
-                    // console.log(file);
-                    //up.settings('formData', {aaaaa:'1111111',bb:'2222'});
-                    // up.Huploadify('settings','formData', {aaaaa:'1111111',bb:'2222'});
-                },
-                onUploadSuccess:function(file){
-
-                    calSHA1(file).then(function (result) {
-                        console.log(result);
-                    })
-                    //alert('上传成功');
-                },
-                onUploadComplete:function(){
-                    //alert('上传完成');
-                },
-                /*getUploadedSize:function(file){
-                    var data = {
-                        data : {
-                            fileSHA1: '',
-                        }
-                    };
+                getUploadedSize:function(file){
+                    var
+                        data = {
+                            fileName: file.name,
+                            lastModifiedDate: file.lastModifiedDate.getTime()
+                        };
                     var url = 'http://localhost/file/getUploadSize';
                     var uploadedSize = 0;
                     $.ajax({
@@ -69,11 +39,36 @@
                         type : 'get',
                         dataType: 'json',
                         success : function(returnData){
-                            uploadedSize = returnData.uploadedSize;
+                            console.log(returnData);
+                            uploadedSize = returnData;
                         }
                     });
                     return uploadedSize;
-                }*/
+                },
+                saveUploadedSize:function(file, value){
+                },
+                onUploadStart:function(file){
+                    console.log(file.name+'开始上传');
+                },
+                onInit:function(obj){
+                },
+                onUploadSuccess:function(file){
+                },
+                onUploadComplete:function(file){
+                },
+                onCancel:function(file){
+                },
+                onClearQueue:function(queueItemCount){
+                    console.log('有'+queueItemCount+'个文件被删除了');
+                },
+                onDestroy:function(){
+                },
+                onSelect:function(file){
+                    console.log(file.name+'加入上传队列');
+                },
+                onQueueComplete:function(queueData){
+                    console.log('队列中的文件全部上传完成',queueData);
+                }
             });
 
             $('#btn1').click(function(){
@@ -100,7 +95,6 @@
 
         function calSHA1(file) {
             //使用FileReader对象对文件的二进制进行sha-1的hash计算
-
             return new Promise(function (resolve, reject) {
                 var reader = new FileReader();
                 //当整个文件加载完成后，开始进行hash值的计算操作
