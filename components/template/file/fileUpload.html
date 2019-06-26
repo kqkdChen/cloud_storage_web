@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Huploadify demo</title>
+    <link rel="stylesheet" type="text/css" href="static/css/Huploadify.css"/>
+    <script type="text/javascript" src="static/js/jquery.js"></script>
+    <script type="text/javascript" src="static/js/jquery.Huploadify.js"></script>
+    <style type="text/css">
+    </style>
+    <script type="text/javascript">
+        $(function(){
+            layui.use(['config'], function () {
+                var config = layui.config;
+                var token = config.getToken().access_token;
+                var up = $('#upload').Huploadify({
+                    auto:false,
+                    fileTypeExts:'*.txt;*.jpg;*.png;*.avi;*.rar;*.exe;*.mp3;*.mp4;*.zip;*.doc;*.docx;*.ppt;*.pptx;*.xls;*.xlsx;*.pdf;*.md',
+                    multi:true,
+                    authorization: token, // token
+                    breakPoints:true,
+                    saveInfoLocal:false,
+                    showUploadedPercent:true,//是否实时显示上传的百分比，如20%
+                    showUploadedSize:true,
+                    fileSizeLimit: 2048 * 1024,
+                    fileSplitSize: 5 * 1024 * 1024,
+                    removeTimeout:9999999,
+                    uploader:'http://localhost/f/upload',
+                    getUploadedSize:function(file){
+                        var
+                            data = {
+                                fileSize: file.size,
+                                lastModifiedDate: file.lastModifiedDate.getTime()
+                            };
+                        var url = 'http://localhost/f/getUploadSize';
+                        var uploadedSize = 0;
+                        $.ajax({
+                            url : url,
+                            data : data,
+                            async : false,
+                            type : 'get',
+                            dataType: 'json',
+                            headers: {
+                                'Authorization': token
+                            },
+                            success : function(returnData){
+                                console.log(returnData);
+                                uploadedSize = returnData;
+                            }
+                        });
+                        return uploadedSize;
+                    },
+                    saveUploadedSize:function(file, value){
+                    },
+                    onUploadStart:function(file){
+                        console.log(file.name+'开始上传');
+                    },
+                    onInit:function(obj){
+                    },
+                    onUploadSuccess:function(file){
+                    },
+                    onUploadComplete:function(file){
+                    },
+                    onCancel:function(file){
+                    },
+                    onClearQueue:function(queueItemCount){
+                        console.log('有'+queueItemCount+'个文件被删除了');
+                    },
+                    onDestroy:function(){
+                    },
+                    onSelect:function(file){
+                        console.log(file.name+'加入上传队列');
+                    },
+                    onQueueComplete:function(queueData){
+                        console.log('队列中的文件全部上传完成',queueData);
+                    }
+                });
+
+                $('#btn1').click(function(){
+                    up.stop();
+                });
+                $('#btn2').click(function(){
+                    up.upload('*');
+                });
+                $('#btn3').click(function(){
+                    up.cancel('*');
+                });
+                $('#btn4').click(function(){
+                    //up.disable();
+                    up.Huploadify('disable');
+                });
+                $('#btn5').click(function(){
+                    up.ennable();
+                });
+                $('#btn6').click(function(){
+                    up.destroy();
+                });
+            });
+        });
+
+        // function calSHA1(file) {
+        //     //使用FileReader对象对文件的二进制进行sha-1的hash计算
+        //     return new Promise(function (resolve, reject) {
+        //         var reader = new FileReader();
+        //         //当整个文件加载完成后，开始进行hash值的计算操作
+        //         reader.readAsBinaryString(file);
+        //         reader.onload = function (e) {
+        //             var binary = e.target.result;
+        //             resolve(CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(binary)).toString());
+        //             // sha1_hash = CryptoJS.SHA1(CryptoJS.enc.Latin1.parse(binary)).toString();
+        //         };
+        //     });
+        // }
+
+    </script>
+</head>
+
+<body>
+<div class="layui-fluid">
+    <div class="layui-card" style="min-height: 400px;">
+        <button class="layui-btn layui-btn-primary" id="btn1">stop</button>
+        <button class="layui-btn layui-btn-primary" id="btn2">upload</button>
+        <button id="btn3">cancel</button>
+        <button id="btn4">disable</button>
+        <button id="btn5">ennable</button>
+        <button id="btn6">destroy</button>
+        <div id="upload"></div>
+    </div>
+</div>
+
+
+</body>
+</html>

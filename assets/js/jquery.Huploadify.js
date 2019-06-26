@@ -8,6 +8,7 @@
 			method: 'post',//发送请求的方式，get或post
 			multi: true,//是否允许选择多个文件
 			formData: null,//发送给服务端的参数，格式：{key1:value1,key2:value2}
+			authorization: '', //请求头，可以添加token等信息验证
 			fileObjName: 'file',//在后端接受文件的参数名称，如PHP中的$_FILES['file']
 			fileSizeLimit: 2048,//允许上传的文件大小，单位KB
 			showUploadedPercent: true,//是否实时显示上传的百分比，如20%
@@ -385,13 +386,13 @@
 			  	},
 			  	//上传文件片
 			  	_sendBlob : function(xhr, file, originalfile){
-					console.log(originalfile);
-					console.log(file);
 			  		if(file.status===0){
 						file.status = 1;//标记为正在上传
 						uploadManager.uploadStopped = false;
 						xhr.open(option.method, option.uploader, true);
+						debugger;
 						xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+						xhr.setRequestHeader("Authorization", option.authorization);
 						var fd = new FormData();
 						fd.append(option.fileObjName,file);
 						fd.append('fileName', originalfile.name);
@@ -421,10 +422,11 @@
 					var originalFile = file;//保存原始未切割的文件引用
 					try{
 						xhr=new XMLHttpRequest();
-					}catch(e){	  
+					}catch(e){
 						xhr=ActiveXobject("Msxml12.XMLHTTP");
+						debugger;
+						xhr.setRequestHeader("Authorization", option.authorization);
 				  	}
-
 				  	//判断是否开启断点续传
 				  	if(option.breakPoints){
 				  		var uploadedSize = 0;
