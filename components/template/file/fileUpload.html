@@ -18,13 +18,14 @@
                     fileTypeExts:'*.txt;*.jpg;*.png;*.avi;*.rar;*.exe;*.mp3;*.mp4;*.zip;*.doc;*.docx;*.ppt;*.pptx;*.xls;*.xlsx;*.pdf;*.md',
                     multi:true,
                     authorization: token, // token
+                    formData: {token: token},
                     breakPoints:true,
                     saveInfoLocal:false,
                     showUploadedPercent:true,//是否实时显示上传的百分比，如20%
                     showUploadedSize:true,
                     fileSizeLimit: 2048 * 1024,
                     fileSplitSize: 5 * 1024 * 1024,
-                    removeTimeout:9999999,
+                    removeTimeout:3000,
                     uploader:'http://localhost/f/upload',
                     getUploadedSize:function(file){
                         var
@@ -51,9 +52,9 @@
                         return uploadedSize;
                     },
                     saveUploadedSize:function(file, value){
+                        localStorage.setItem(file.name, value);
                     },
                     onUploadStart:function(file){
-                        console.log(file.name+'开始上传');
                     },
                     onInit:function(obj){
                     },
@@ -64,15 +65,12 @@
                     onCancel:function(file){
                     },
                     onClearQueue:function(queueItemCount){
-                        console.log('有'+queueItemCount+'个文件被删除了');
                     },
                     onDestroy:function(){
                     },
                     onSelect:function(file){
-                        console.log(file.name+'加入上传队列');
                     },
                     onQueueComplete:function(queueData){
-                        console.log('队列中的文件全部上传完成',queueData);
                     }
                 });
 

@@ -390,7 +390,6 @@
 						file.status = 1;//标记为正在上传
 						uploadManager.uploadStopped = false;
 						xhr.open(option.method, option.uploader, true);
-						debugger;
 						xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 						xhr.setRequestHeader("Authorization", option.authorization);
 						var fd = new FormData();
