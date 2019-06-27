@@ -314,7 +314,6 @@
 							}
 						}
 						uploadManager.filteredFiles.splice(index, 1);
-						console.log(uploadManager.filteredFiles);
 						setTimeout(function(){
 							_this.find('#fileupload_'+instanceNumber+'_'+file.index).fadeOut();
 						},option.removeTimeout);
@@ -485,7 +484,7 @@
 								if(xhr.status == 200){
 									if(option.breakPoints){
 										//保存已上传文件大小
-										uploadedSize += parseInt(xhr.responseText);
+										uploadedSize = parseInt(xhr.responseText);
 										if(option.saveUploadedSize){
 											option.saveUploadedSize(originalFile,uploadedSize);
 										}

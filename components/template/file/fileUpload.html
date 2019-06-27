@@ -41,15 +41,34 @@
                             'Authorization': token
                         },
                         success : function(returnData){
-                            console.log(returnData);
                             uploadedSize = returnData;
                         }
                     });
                     return uploadedSize;
                 },
                 saveUploadedSize:function(file, value){
-                    console.log(file, value, '已经上传的大小');
-                    // localStorage.setItem(file.name, value);
+                //     var
+                //         data = {
+                //             uploadSize: value,
+                //             fileSize: file.size,
+                //             lastModifiedDate: file.lastModifiedDate.getTime()
+                //         };
+                //     var url = 'http://localhost/f/saveUploadSize';
+                //     $.ajax({
+                //         url : url,
+                //         data : data,
+                //         async : false,
+                //         type : 'get',
+                //         dataType: 'json',
+                //         headers: {
+                //             'Authorization': token
+                //         },
+                //         success : function(returnData){
+                //
+                //         }
+                //     });
+                //
+                //     console.log(file, value, '已经上传的大小');
                 },
                 onUploadStart:function(file){
                     console.log(file, file.name+'开始上传');
