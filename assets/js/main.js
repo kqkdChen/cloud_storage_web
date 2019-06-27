@@ -24,9 +24,9 @@ layui.config({
     var laytpl = layui.laytpl;
 
     // 检查是否登录
-    if (!config.getToken()) {
-        return location.replace('login.html');
-    }
+    // if (!config.getToken()) {
+    //     return location.replace('login.html');
+    // }
 
     var user = config.getUser();
     admin.renderPerm();  // 移除没有权限的元素

@@ -9,6 +9,7 @@
 			multi: true,//是否允许选择多个文件
 			formData: null,//发送给服务端的参数，格式：{key1:value1,key2:value2}
 			authorization: '', //请求头，可以添加token等信息验证
+			userId: '',
 			fileObjName: 'file',//在后端接受文件的参数名称，如PHP中的$_FILES['file']
 			fileSizeLimit: 2048,//允许上传的文件大小，单位KB
 			showUploadedPercent: true,//是否实时显示上传的百分比，如20%
@@ -31,7 +32,7 @@
 			onSelect: null,//选择文件后的回调函数，可传入参数file
 			onQueueComplete: null//队列中的所有文件上传完成后触发
 		};
-			
+
 		var option = $.extend(defaults,opts);
 
 		//定义一个通用函数集合
@@ -57,7 +58,7 @@
 			},
 			//根据文件序号获取文件
 			getFile : function(index,files){
-				for(var i=0;i<files.length;i++){	   
+				for(var i=0;i<files.length;i++){
 					if(files[i].index == index){
 						return files[i];
 					}
@@ -90,7 +91,7 @@
 				for(var i=0,len=types.length;i<len;i++){
 					var mime = F.getMimetype(types[i]);
 					if(mime){
-						result.push(mime);				
+						result.push(mime);
 					}
 				}
 				return result.join(',');
@@ -123,7 +124,7 @@
 					returnObj =  {
 						instanceNumber : instanceNumber,
 						stop : function(){
-				  			uploadManager.uploadOver = false;
+							uploadManager.uploadOver = false;
 							uploadManager.uploadStopped = true;
 						},
 						upload : function(fileIndex){
@@ -134,7 +135,7 @@
 							}
 							else{
 								var file = F.getFile(fileIndex,uploadManager.filteredFiles);
-								file && uploadManager._uploadFile(file);	
+								file && uploadManager._uploadFile(file);
 							}
 						},
 						cancel : function(fileIndex){
@@ -159,7 +160,7 @@
 						ennable : function(instanceID){
 							//点击上传按钮时触发file的click事件
 							var parent = instanceID ? $('file_upload_'+instanceID+'-button') : $('body');
-						  	parent.find('.uploadify-button').css('background-color','#707070').on('click',function(){
+							parent.find('.uploadify-button').css('background-color','#707070').on('click',function(){
 								parent.find('.selectbtn').trigger('click');
 							});
 						},
@@ -192,17 +193,17 @@
 
 					//文件选择控件选择
 					var fileInput = this._getInputBtn();
-				  	if (fileInput.length>0) {
-						fileInput.change(function(e) { 
-							uploadManager._getFiles(e); 
-					 	});	
-				 	}
-				  
+					if (fileInput.length>0) {
+						fileInput.change(function(e) {
+							uploadManager._getFiles(e);
+						});
+					}
+
 					//点击选择文件按钮时触发file的click事件
 					_this.find('.uploadify-button').on('click',function(){
 						_this.find('.selectbtn').trigger('click');
 					});
-				  
+
 					option.onInit && option.onInit(returnObj);
 				},
 				_filter: function(files) {		//选择文件组的过滤方法
@@ -243,8 +244,10 @@
 
 					//如果开启断点续传，先初始化原来上传的文件大小
 					var initWidth = 0,initFileSize = '0KB',initUppercent = '0%';
+					var uploadedSize;
 					if(option.breakPoints){
-						var uploadedSize = option.getUploadedSize(file);	
+						uploadedSize = option.getUploadedSize(file);
+						// 如果文件大小和已上传大小相同则设置秒传修改文件状态为2
 						//先设置进度条为原来已上传的文件大小
 						//矫正计算误差出现的大于100%问题
 						if(uploadedSize >= file.size){
@@ -262,12 +265,13 @@
 
 					uploadManager._getFileList().append($html);
 
+
 					//判断是否显示已上传文件大小
 					if(option.showUploadedSize){
 						var num = '<span class="progressnum"><span class="uploadedsize">'+initFileSize+'</span>/<span class="totalsize">${fileSize}</span></span>'.replace(/\${fileSize}/g,F.formatFileSize(file.size));
 						$html.find('.uploadify-progress').after(num);
 					}
-					
+
 					//判断是否显示上传百分比	
 					if(option.showUploadedPercent){
 						var percentText = '<span class="up_percent">'+initUppercent+'</span>';
@@ -283,34 +287,53 @@
 					}
 					else{
 						//如果配置非自动上传，绑定上传事件
-					 	$html.find('.uploadbtn').on('click',function(){
-					 		if(!$(this).hasClass('disabledbtn')){
-					 			$(this).addClass('disabledbtn');
-					 			uploadManager._uploadFile(file);
-					 		}
-				 		});
+						$html.find('.uploadbtn').on('click',function(){
+							if(!$(this).hasClass('disabledbtn')){
+								$(this).addClass('disabledbtn');
+								uploadManager._uploadFile(file);
+							}
+						});
 					}
 
 					//为删除文件按钮绑定删除文件事件
-			 		$html.find('.delfilebtn').on('click',function(){
-			 			if(!$(this).hasClass('disabledbtn')){
-					 		$(this).addClass('disabledbtn');
-			 				uploadManager._deleteFile(file);
-			 			}
-			 		});
+					$html.find('.delfilebtn').on('click',function(){
+						if(!$(this).hasClass('disabledbtn')){
+							$(this).addClass('disabledbtn');
+							uploadManager._deleteFile(file);
+						}
+					});
+
+					/* 秒传判断，如果已经上传的大小等于文件大小则判定秒传 */
+					if (file.size == uploadedSize) {
+						var files = uploadManager.filteredFiles;
+						var index;
+						file.status = 2;
+						for (let i = 0; i < files.length; i++) {
+							if (file.name == files[i].name) {
+								index = i;
+							}
+						}
+						uploadManager.filteredFiles.splice(index, 1);
+						console.log(uploadManager.filteredFiles);
+						setTimeout(function(){
+							_this.find('#fileupload_'+instanceNumber+'_'+file.index).fadeOut();
+						},option.removeTimeout);
+					}
+
 				},
 				//获取选择后的文件
 				_getFiles : function(e){
-			  		var files = e.target.files;
-			  		files = uploadManager._filter(files);
-			  		var fileCount = _this.find('.uploadify-queue .uploadify-queue-item').length;//队列中已经有的文件个数
-		  			for(var i=0,len=files.length;i<len;i++){
-		  				files[i].index = ++fileCount;
-		  				files[i].status = 0;//标记为未开始上传
-		  				uploadManager.filteredFiles.push(files[i]);
-		  				var l = uploadManager.filteredFiles.length;
-		  				uploadManager._renderFile(uploadManager.filteredFiles[l-1]);
-		  			}
+					var files = e.target.files;
+					files = uploadManager._filter(files);
+					var fileCount = _this.find('.uploadify-queue .uploadify-queue-item').length;//队列中已经有的文件个数
+					for(var i=0,len=files.length;i<len;i++){
+						files[i].index = ++fileCount;
+						files[i].status = 0;//标记为未开始上传
+						uploadManager.filteredFiles.push(files[i]);
+						var l = uploadManager.filteredFiles.length;
+						uploadManager._renderFile(uploadManager.filteredFiles[l-1]);
+					}
+
 				},
 				//删除文件
 				_deleteFile : function(file){
@@ -322,17 +345,17 @@
 						  	}*/
 							uploadManager.filteredFiles.splice(i,1);
 							_this.find('#fileupload_'+instanceNumber+'_'+file.index).fadeOut();
-							option.onCancel && option.onCancel(file);	
+							option.onCancel && option.onCancel(file);
 							break;
 						}
-			  		}
+					}
 				},
 				//校正上传完成后的进度条误差
 				_regulateView : function(file){
 					var thisfile = _this.find('#fileupload_'+instanceNumber+'_'+file.index);
 					thisfile.find('.uploadify-progress-bar').css('width','100%');
 					option.showUploadedSize && thisfile.find('.uploadedsize').text(thisfile.find('.totalsize').text());
-					option.showUploadedPercent && thisfile.find('.up_percent').text('100%');	
+					option.showUploadedPercent && thisfile.find('.up_percent').text('100%');
 				},
 				onProgress : function(fileblob, originalfile, loaded, total) {
 					var eleProgress = _this.find('#fileupload_'+instanceNumber+'_'+originalfile.index+' .uploadify-progress');
@@ -352,7 +375,7 @@
 						oldProgressNum.text(F.formatFileSize(thisLoaded + oldSize*1024*1024));
 					}
 					if(option.showUploadedPercent){
-						eleProgress.nextAll('.up_percent').text(percentText);	
+						eleProgress.nextAll('.up_percent').text(percentText);
 					}
 					progressBar.css('width', percentText);
 
@@ -361,32 +384,32 @@
 						eleProgress.attr('lastLoaded',thisLoaded);
 					}
 					else{
-						eleProgress.removeAttr('lastLoaded');	
+						eleProgress.removeAttr('lastLoaded');
 					}
-			  	},
-			  	_allFilesUploaded : function(){
-		  			var queueData = {
+				},
+				_allFilesUploaded : function(){
+					var queueData = {
 						uploadsSuccessful : 0,
 						uploadsErrored : 0
 					};
-			  		for(var i=0,len=uploadManager.filteredFiles.length; i<len; i++){
-			  			var s = uploadManager.filteredFiles[i].status;
-			  			if(s===0 || s===1){
-			  				queueData = false;
-			  				break;
-			  			}
-			  			else if(s===2){
-			  				queueData.uploadsSuccessful++;
-			  			}
-			  			else if(s===3){
-			  				queueData.uploadsErrored++;
-			  			}
-			  		}
-			  		return queueData;
-			  	},
-			  	//上传文件片
-			  	_sendBlob : function(xhr, file, originalfile){
-			  		if(file.status===0){
+					for(var i=0,len=uploadManager.filteredFiles.length; i<len; i++){
+						var s = uploadManager.filteredFiles[i].status;
+						if(s===0 || s===1){
+							queueData = false;
+							break;
+						}
+						else if(s===2){
+							queueData.uploadsSuccessful++;
+						}
+						else if(s===3){
+							queueData.uploadsErrored++;
+						}
+					}
+					return queueData;
+				},
+				//上传文件片
+				_sendBlob : function(xhr, file, originalfile){
+					if(file.status===0){
 						file.status = 1;//标记为正在上传
 						uploadManager.uploadStopped = false;
 						xhr.open(option.method, option.uploader, true);
@@ -397,53 +420,62 @@
 						fd.append('fileName', originalfile.name);
 						fd.append('lastModifiedDate', originalfile.lastModifiedDate.getTime());
 						fd.append('fileSize', originalfile.size);
+						fd.append('userId', option.userId);
 						if(option.formData){
-						 	for(key in option.formData){
-						  		fd.append(key,option.formData[key]);
-						  	}
+							for(key in option.formData){
+								fd.append(key,option.formData[key]);
+							}
 						}
 						xhr.send(fd);
 					}
-			  	},
-			  	//上传成功后的回调函数
-			  	_uploadSucessCallback : function(file, xhr){
-			  		uploadManager._regulateView(file);
+				},
+				//上传成功后的回调函数
+				_uploadSuccessCallback : function(file, xhr){
+					uploadManager._regulateView(file);
 					file.status = 2;//标记为上传成功
 					option.onUploadSuccess && option.onUploadSuccess(file, xhr.responseText);
 					//在指定的间隔时间后删掉进度条
+					var files = uploadManager.filteredFiles;
+					var index;
+					file.status = 2;
+					for (let i = 0; i < files.length; i++) {
+						if (file.name == files[i].name) {
+							index = i;
+						}
+					}
+					uploadManager.filteredFiles.splice(index, 1);
 					setTimeout(function(){
 						_this.find('#fileupload_'+instanceNumber+'_'+file.index).fadeOut();
 					},option.removeTimeout);
-			  	},
+				},
 				//上传文件
 				_uploadFile : function(file){
 					var xhr = null;
 					var originalFile = file;//保存原始未切割的文件引用
 					try{
 						xhr=new XMLHttpRequest();
+						// xhr.setRequestHeader("Authorization", option.authorization);
 					}catch(e){
 						xhr=ActiveXobject("Msxml12.XMLHTTP");
-						debugger;
-						xhr.setRequestHeader("Authorization", option.authorization);
-				  	}
-				  	//判断是否开启断点续传
-				  	if(option.breakPoints){
-				  		var uploadedSize = 0;
-				  		if(option.getUploadedSize){
-				  			uploadedSize = option.getUploadedSize(originalFile);
-				  		}
-				  		else{
-				  			alert('请先配置getUploadedSize参数！');
-				  			return;
-				  		}
-				  		file = originalFile.slice(uploadedSize,uploadedSize + option.fileSplitSize);
-				  		file.status = originalFile.status;
-				  		file.name = originalFile.name;
-				  	}
+					}
+					//判断是否开启断点续传
+					if(option.breakPoints){
+						var uploadedSize = 0;
+						if(option.getUploadedSize){
+							uploadedSize = option.getUploadedSize(originalFile);
+						}
+						else{
+							alert('请先配置getUploadedSize参数！');
+							return;
+						}
+						file = originalFile.slice(uploadedSize,uploadedSize + option.fileSplitSize);
+						file.status = originalFile.status;
+						file.name = originalFile.name;
+					}
 
-				  	if(xhr.upload){
-				  		// 上传中
-					  	xhr.upload.onprogress = function(e) {
+					if(xhr.upload){
+						// 上传中
+						xhr.upload.onprogress = function(e) {
 							uploadManager.onProgress(file, originalFile, e.loaded, e.total);
 						};
 
@@ -453,9 +485,9 @@
 								if(xhr.status == 200){
 									if(option.breakPoints){
 										//保存已上传文件大小
-										uploadedSize += option.fileSplitSize;
+										uploadedSize += parseInt(xhr.responseText);
 										if(option.saveUploadedSize){
-											option.saveUploadedSize(originalFile,uploadedSize);	
+											option.saveUploadedSize(originalFile,uploadedSize);
 										}
 										else{
 											alert('请先配置saveUploadedSize参数！');
@@ -466,17 +498,17 @@
 											uploadManager.uploadOver = false;
 											if(!uploadManager.uploadStopped){
 												file = originalFile.slice(uploadedSize,uploadedSize + option.fileSplitSize);
-										  		file.status = originalFile.status;
-										  		file.name = originalFile.name;
+												file.status = originalFile.status;
+												file.name = originalFile.name;
 												uploadManager._sendBlob(xhr, file, originalFile);
 											}
 										}
 										else{
-											uploadManager._uploadSucessCallback(originalFile, xhr);
+											uploadManager._uploadSuccessCallback(originalFile, xhr);
 										}
 									}
 									else{
-										uploadManager._uploadSucessCallback(originalFile, xhr);
+										uploadManager._uploadSuccessCallback(originalFile, xhr);
 									}
 								}
 								else {
@@ -490,27 +522,27 @@
 									//检测队列中的文件是否全部上传完成，执行onQueueComplete
 									if(option.onQueueComplete){
 										var queueData = uploadManager._allFilesUploaded();
-										queueData && option.onQueueComplete(queueData);	
+										queueData && option.onQueueComplete(queueData);
 									}
 
 									//清除文件选择框中的已有值
 									uploadManager._getInputBtn().val('');
 								}
-								
+
 							}
 						}
 
 						//开始上传文件
 						option.onUploadStart && option.onUploadStart(originalFile);
 						uploadManager._sendBlob(xhr, file, originalFile);
-						
-				  	}
+
+					}
 				}
 			};
 
 			uploadManager.init();
 		});
-		
+
 		return returnObj;
 
 	}

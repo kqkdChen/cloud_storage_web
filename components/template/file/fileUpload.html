@@ -8,19 +8,20 @@
         layui.use(['config'], function () {
             var config = layui.config;
             var token = config.getToken().access_token;
+            var userId = config.getToken().user.id;
             var up = $('#upload').Huploadify({
                 auto:false,
                 fileTypeExts:'*.txt;*.jpg;*.png;*.avi;*.rar;*.exe;*.mp3;*.mp4;*.zip;*.doc;*.docx;*.ppt;*.pptx;*.xls;*.xlsx;*.pdf;*.md',
                 multi:true,
                 authorization: token, // token
-                formData: {token: token},
+                userId: userId, //用户id
                 breakPoints:true,
                 saveInfoLocal:false,
                 showUploadedPercent:true,//是否实时显示上传的百分比，如20%
                 showUploadedSize:true,
                 fileSizeLimit: 2048 * 1024,
                 fileSplitSize: 5 * 1024 * 1024,
-                removeTimeout:3000,
+                removeTimeout:2000,
                 uploader:'http://localhost/f/upload',
                 getUploadedSize:function(file){
                     var
@@ -47,25 +48,34 @@
                     return uploadedSize;
                 },
                 saveUploadedSize:function(file, value){
-                    localStorage.setItem(file.name, value);
+                    console.log(file, value, '已经上传的大小');
+                    // localStorage.setItem(file.name, value);
                 },
                 onUploadStart:function(file){
+                    console.log(file, file.name+'开始上传');
                 },
                 onInit:function(obj){
                 },
                 onUploadSuccess:function(file){
+                    console.log(file, file.name+'上传成功');
                 },
                 onUploadComplete:function(file){
+                    console.log(file, file.name+'上传完成');
                 },
                 onCancel:function(file){
+                    console.log(file.name+'删除成功');
                 },
                 onClearQueue:function(queueItemCount){
+                    console.log('有'+queueItemCount+'个文件被删除了');
                 },
                 onDestroy:function(){
+                    console.log('destroyed!');
                 },
                 onSelect:function(file){
+                    // console.log(file, file.name+'加入上传队列');
                 },
                 onQueueComplete:function(queueData){
+                    console.log('队列中的文件全部上传完成',queueData);
                 }
             });
 
